@@ -50,6 +50,7 @@ import black.dalvik.system.VMRuntime;
 import top.canyie.pine.Pine;
 import top.canyie.pine.PineConfig;
 import top.niunaijun.bcore.BlackBoxCore;
+import top.niunaijun.bcore.PineXposed;
 import top.niunaijun.bcore.app.configuration.AppLifecycleCallback;
 import top.niunaijun.bcore.app.dispatcher.AppServiceDispatcher;
 import top.niunaijun.bcore.core.CrashHandler;
@@ -350,6 +351,7 @@ public class BActivityThread extends IBActivityThread.Stub {
             onBeforeApplicationOnCreate(packageName, processName, application);
             AppInstrumentation.get().callApplicationOnCreate(application);
             onAfterApplicationOnCreate(packageName, processName, application);
+            PineXposed.initForXposed(application.getApplicationContext(),processName);
             HookManager.get().checkEnv(HCallbackProxy.class);
         } catch (Exception e) {
             e.printStackTrace();
@@ -555,9 +557,7 @@ public class BActivityThread extends IBActivityThread.Stub {
 
     private void onBeforeApplicationOnCreate(String packageName, String processName, Application application) {
         for (AppLifecycleCallback appLifecycleCallback : BlackBoxCore.get().getAppLifecycleCallbacks()) {
-            //初始化hook框架
-            PineConfig.debug = true; // Do we need to print more detailed logs?
-            PineConfig.debuggable = BuildConfig.DEBUG; // Is this process debuggable?
+            PineXposed.init();
             appLifecycleCallback.beforeApplicationOnCreate(packageName, processName, application, BActivityThread.getUserId());
         }
     }
